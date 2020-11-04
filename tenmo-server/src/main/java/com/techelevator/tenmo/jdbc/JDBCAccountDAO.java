@@ -1,28 +1,38 @@
 package com.techelevator.tenmo.jdbc;
 
+
 import java.math.BigDecimal;
+
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Component;
 
 import com.techelevator.tenmo.dao.AccountDAO;
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserNotFoundException;
 
+@Component
 public class JDBCAccountDAO implements AccountDAO {
 	
 	private JdbcTemplate jdbcTemplate;
+	Account currentAcc = new Account();
 	
 	public JDBCAccountDAO(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
+		
+
+	
 	}
 	
 
 	@Override
 	public BigDecimal getBalance(int userId) {
+		
 		String sql = "SELECT balance FROM accounts WHERE user_id = ?";
 		
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
@@ -95,6 +105,21 @@ public class JDBCAccountDAO implements AccountDAO {
 		trans.setAccountTo(rs.getInt("accountTo"));
 		trans.setAmount(rs.getBigDecimal("amount"));
 		return trans;
+	}
+	
+	private Account setAccount(Principal p) {
+		 
+		String currentUser = p.getName();
+		
+		String sql ="SELECT*FROM accounts JOIN users ON users.user_id =accounts.user_id WHERE users.username =?";
+		SqlRowSet temp =jdbcTemplate.queryForRowSet(sql,currentUser);
+		temp.next();
+		currentAcc.setAccountId(temp.getInt("account_id"));
+		currentAcc.setUserId(temp.getInt("user_id"));
+		currentAcc.setBalance(temp.getBigDecimal("balance"));
+		
+		return currentAcc;
+		
 	}
 	
 	
