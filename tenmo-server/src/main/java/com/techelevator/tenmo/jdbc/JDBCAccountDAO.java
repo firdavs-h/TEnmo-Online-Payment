@@ -43,17 +43,20 @@ public class JDBCAccountDAO implements AccountDAO {
 	}
 
 	@Override
-	public Transfer send(Transfer transfer) {
+	public Transfer send(Transfer t) {
 		
 		Transfer newTransfer = new Transfer();
 		
 		String sqlGetNextInt = "SELECT nextval ('seq_transfer_id'); ";
-		SqlRowSet result = jdbcTemplate.queryForRowSet(sqlGetNextInt);
-		result.next();
-		int id = result.getInt(1);
+		SqlRowSet nextId = jdbcTemplate.queryForRowSet(sqlGetNextInt);
+		nextId.next();
+		int id = nextId.getInt(1);
 		String sql = "INSERT INTO transfers (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount) " + 
 	                 "VALUES (?, ?, ?, ?, ?, ?) ";
-		mapRowToTransfer(result);
+		SqlRowSet transfers = jdbcTemplate.queryForRowSet(sql,id, t.getTransferType());
+		newTransfer =mapRowToTransfer(transfers);
+		If(newTransfer.getAmount()<)
+		
 		return newTransfer;
 		
 	}
@@ -99,9 +102,11 @@ public class JDBCAccountDAO implements AccountDAO {
 		return null;
 	}
 	
+	@Override
 	public List<Account> getAllAccounts() {
 		List<Account> accounts = new ArrayList<>();
-		String sql = "SELECT account_id, user_id, username FROM account; ";
+		String sql = "SELECT accounts.account_id, accounts.user_id, users.username FROM accounts "
+				+ "JOIN users ON users.user_id =accounts.user_id";
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
 		while(results.next()) {
 			Account account = mapRowToAccount(results);
@@ -115,9 +120,9 @@ public class JDBCAccountDAO implements AccountDAO {
 	private Account mapRowToAccount(SqlRowSet row) {
 		
 		Account account = new Account();
-			account.setAccountId(row.getInt("accountId"));
-			account.setUserId(row.getInt("userId"));
-			account.setUsername(row.getString("userName"));
+			account.setAccountId(row.getInt("account_id"));
+			account.setUserId(row.getInt("user_id"));
+			account.setUsername(row.getString("username"));
 		return account;
 		}
 	
