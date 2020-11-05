@@ -45,27 +45,25 @@ public class JDBCAccountDAO implements AccountDAO {
 	@Override
 	public Transfer send(Transfer t) {
 		
-		Transfer newTransfer = new Transfer();
-		
-		String sqlGetNextInt = "SELECT nextval ('seq_transfer_id'); ";
+		String sqlGetNextInt = "SELECT nextval ('seq_transfer_id') ";
 		SqlRowSet nextId = jdbcTemplate.queryForRowSet(sqlGetNextInt);
 		nextId.next();
 		int id = nextId.getInt(1);
 		String sql = "INSERT INTO transfers (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount) " + 
 	                 "VALUES (?, ?, ?, ?, ?, ?) ";
-		SqlRowSet transfers = jdbcTemplate.queryForRowSet(sql,id, t.getTransferType(), t.getTransferStatus(), t.getAccountFrom(), t.getAccountTo(), t.getAmount());
-		newTransfer =mapRowToTransfer(transfers);
+	    jdbcTemplate.update(sql,id, t.getTransferType(), t.getTransferStatus(), t.getAccountFrom(), t.getAccountTo(), t.getAmount());
+		t.setTransferId(id);
 		
-		if(newTransfer.getAmount().compareTo(getBalanceByAccount(t.getAccountFrom())) <= 0) {
+		if(t.getAmount().compareTo(getBalanceByAccount(t.getAccountFrom())) <= 0) {
 			
 		String sqlSender ="UPDATE accounts SET balance = (balance - ?) WHERE account_id = ?";
-		SqlRowSet sender = jdbcTemplate.queryForRowSet(sqlSender, t.getAmount(), t.getAccountFrom());
+		 jdbcTemplate.update(sqlSender, t.getAmount(), t.getAccountFrom());
 		String sqlReceiver = "UPDATE accounts SET balance = (balance + ?) WHERE account_id = ?";
-		SqlRowSet receiver = jdbcTemplate.queryForRowSet(sqlReceiver, t.getAmount(), t.getAccountTo());
+		jdbcTemplate.update(sqlReceiver, t.getAmount(), t.getAccountTo());
 		
 		}
 		
-		return newTransfer;
+		return t;
 		
 	}
 
@@ -73,7 +71,9 @@ public class JDBCAccountDAO implements AccountDAO {
 	public List<Transfer> pastTransfers(int userId) {
 		
 		List<Transfer> transfers = new ArrayList<>();
-		String sql = "SELECT * FROM transfers WHERE user_id = ?; ";
+		String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount FROM transfers " + 
+				"JOIN accounts a ON a.account_id = transfers.account_from OR a.account_id = transfers.account_to " + 
+				"WHERE a.user_id = ? ";
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
 		while(results.next()) {
 			Transfer transfer = mapRowToTransfer(results);
@@ -83,11 +83,13 @@ public class JDBCAccountDAO implements AccountDAO {
 	}
 
 	@Override
-	public Transfer transferById(int userId) {
+	public Transfer transferById(int userId, int transfer_id) {
 		
 		Transfer transfer = null;
-		String sql = "SELECT * FROM transfers WHERE user_id = ?; ";
-		SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
+		String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount FROM transfers " + 
+				"JOIN accounts a ON a.account_id = transfers.account_from OR a.account_id = transfers.account_to " + 
+				"WHERE transfer_id=? AND a.user_id = ? ";
+		SqlRowSet results = jdbcTemplate.queryForRowSet(sql,transfer_id, userId);
 		
 		if(results.next()) {
 			transfer = mapRowToTransfer(results);
@@ -141,11 +143,11 @@ public class JDBCAccountDAO implements AccountDAO {
 	
 	private Transfer mapRowToTransfer(SqlRowSet rs) {
 		Transfer trans = new Transfer();
-		trans.setTransferId(rs.getInt("transferId"));
-		trans.setTransferType(rs.getString("TransferType"));
-		trans.setTransferStatus(rs.getString("TransferStatus"));
-		trans.setAccountFrom(rs.getInt("accountFrom"));
-		trans.setAccountTo(rs.getInt("accountTo"));
+		trans.setTransferId(rs.getInt("transfer_id"));
+		trans.setTransferType(rs.getInt("transfer_type_id"));
+		trans.setTransferStatus(rs.getInt("transfer_status_id"));
+		trans.setAccountFrom(rs.getInt("account_from"));
+		trans.setAccountTo(rs.getInt("account_to"));
 		trans.setAmount(rs.getBigDecimal("amount"));
 		return trans;
 	}
