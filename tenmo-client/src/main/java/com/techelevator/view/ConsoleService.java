@@ -4,6 +4,7 @@ package com.techelevator.view;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 public class ConsoleService {
@@ -67,6 +68,20 @@ public class ConsoleService {
 			String userInput = in.nextLine();
 			try {
 				result = Integer.parseInt(userInput);
+			} catch(NumberFormatException e) {
+				out.println("\n*** " + userInput + " is not valid ***\n");
+			}
+		} while(result == null);
+		return result;
+	}
+	public BigDecimal getUserInputBigDecimal(String prompt) {
+		BigDecimal result = null;
+		do {
+			out.print(prompt+": ");
+			out.flush();
+			String userInput = in.nextLine();
+			try {
+				result = new BigDecimal(userInput);
 			} catch(NumberFormatException e) {
 				out.println("\n*** " + userInput + " is not valid ***\n");
 			}
