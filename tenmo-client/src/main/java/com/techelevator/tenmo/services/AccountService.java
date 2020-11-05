@@ -73,7 +73,7 @@ public class AccountService {
     	Transfer transfer =new Transfer();
 		Integer id =currentUser.getUser().getId();
 		Integer reciverUserId =console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel): ");
-		BigDecimal amount= console.getUserInput("Enter amount:");
+		BigDecimal amount= console.getUserInputBigDecimal("Enter amount: ");
 	    try {
 	    	restTemplate.exchange(BASE_URL+ "send", HttpMethod.POST, makeTransferEntity(transfer, currentUser), Map.class);
 	 
