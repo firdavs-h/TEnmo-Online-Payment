@@ -42,7 +42,7 @@ public class AccountService {
 		System.out.println("Your current account balance is: " + balance);
 	}
 
-	public void viewTransferHistory(AuthenticatedUser currentUser) {
+	public Transfer[] viewTransferHistory(AuthenticatedUser currentUser) {
 		Transfer[] transfers = null;
 		Integer id = currentUser.getUser().getId();
 		try {
@@ -55,7 +55,8 @@ public class AccountService {
 			System.out.println("Server not accessible. Check your connection or try again.");
 		}
 		printTransfer(transfers);
-	}
+		return transfers;
+	} 
 
 	public void viewPendingRequests(AuthenticatedUser currentUser) {
 		Transfer[] transfers = null;
@@ -72,7 +73,8 @@ public class AccountService {
 		printTransfer(transfers);
 	}
 
-	public void sendBucks(AuthenticatedUser currentUser) {
+	public Transfer sendBucks(AuthenticatedUser currentUser) {
+		Transfer transferRet =null;
 		Account[] accounts = getAllAccounts(currentUser);
 		Integer currentUserId = currentUser.getUser().getId();
 		printAccount(currentUserId, accounts);
@@ -83,16 +85,22 @@ public class AccountService {
 		Integer accountFrom = accountFromId(currentUserId, accounts);
 		Integer accountTo = accountFromId(receiverUserId, accounts);
 
-		Transfer transfer = new Transfer(null, 2, 2, accountFrom, accountTo, amount);
+		Transfer transfer = new Transfer();
+		transfer.setTransferType(2);
+		transfer.setTransferStatus(2);
+		transfer.setAccountFrom(accountFrom);
+		transfer.setAccountTo(accountTo);
+		transfer.setAmount(amount);
 		try {
-			restTemplate.exchange(BASE_URL + "send", HttpMethod.POST, makeTransferEntity(transfer, currentUser),
-					Map.class);
+			transferRet=restTemplate.exchange(BASE_URL + "send", HttpMethod.POST, makeTransferEntity(transfer, currentUser),
+					Transfer.class).getBody();
 
 		} catch (RestClientResponseException ex) {
 			System.out.println("Request - Responce error: " + ex.getRawStatusCode());
 		} catch (ResourceAccessException e) {
 			System.out.println("Server not accessible. Check your connection or try again.");
 		}
+		return transferRet;
 		
 	}
 
@@ -122,6 +130,7 @@ public class AccountService {
 	}
 	
 	private void printAccount(int userId, Account... accounts ) {
+		if(accounts==null) System.out.println("no account");
 		if (accounts != null) {
 			System.out.println("-------------------------------------------\n" + 
 					"Users\n" + 

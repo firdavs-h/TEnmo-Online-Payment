@@ -4,55 +4,43 @@ import java.math.BigDecimal;
 
 public class Transfer {
 	
-	private Integer transfer_id;
-	private Integer transfer_type_id;
-	private Integer transfer_status_id;
-	private Integer account_from;
-	private Integer account_to;
+	private Integer transferId;
+	private Integer transferType;
+	private Integer transferStatus;
+	private Integer accountFrom;
+	private Integer accountTo;
 	private BigDecimal amount;
 	
 	
-	
-	public Transfer(Integer transfer_id, Integer transfer_type_id, Integer transfer_status_id, Integer account_from,
-			Integer account_to, BigDecimal amount) {
-		
-		this.transfer_id = transfer_id;
-		this.transfer_type_id = transfer_type_id;
-		this.transfer_status_id = transfer_status_id;
-		this.account_from = account_from;
-		this.account_to = account_to;
-		this.amount = amount;
-	}
-	
-	public int getTransferId() {
-		return transfer_id;
+	public Integer getTransferId() {
+		return transferId;
 	}
 	public void setTransferId(Integer transferId) {
-		this.transfer_id = transferId;
+		this.transferId = transferId;
 	}
 	public Integer getTransferType() {
-		return transfer_type_id;
+		return transferType;
 	}
 	public void setTransferType(Integer transferType) {
-		transfer_type_id = transferType;
+		this.transferType = transferType;
 	}
 	public Integer getTransferStatus() {
-		return transfer_status_id;
+		return transferStatus;
 	}
 	public void setTransferStatus(Integer transferStatus) {
-		transfer_status_id = transferStatus;
+		this.transferStatus = transferStatus;
 	}
-	public int getAccountFrom() {
-		return account_from;
+	public Integer getAccountFrom() {
+		return accountFrom;
 	}
 	public void setAccountFrom(Integer accountFrom) {
-		this.account_from = accountFrom;
+		this.accountFrom = accountFrom;
 	}
-	public int getAccountTo() {
-		return account_to;
+	public Integer getAccountTo() {
+		return accountTo;
 	}
 	public void setAccountTo(Integer accountTo) {
-		this.account_to = accountTo;
+		this.accountTo = accountTo;
 	}
 	public BigDecimal getAmount() {
 		return amount;
@@ -60,6 +48,5 @@ public class Transfer {
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
-
 	
 }
