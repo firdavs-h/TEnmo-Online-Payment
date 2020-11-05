@@ -53,9 +53,17 @@ public class JDBCAccountDAO implements AccountDAO {
 		int id = nextId.getInt(1);
 		String sql = "INSERT INTO transfers (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount) " + 
 	                 "VALUES (?, ?, ?, ?, ?, ?) ";
-		SqlRowSet transfers = jdbcTemplate.queryForRowSet(sql,id, t.getTransferType());
+		SqlRowSet transfers = jdbcTemplate.queryForRowSet(sql,id, t.getTransferType(), t.getTransferStatus(), t.getAccountFrom(), t.getAccountTo(), t.getAmount());
 		newTransfer =mapRowToTransfer(transfers);
-		If(newTransfer.getAmount()<)
+		
+		if(newTransfer.getAmount().compareTo(getBalanceByAccount(t.getAccountFrom())) <= 0) {
+			
+		String sqlSender ="UPDATE accounts SET balance = (balance - ?) WHERE account_id = ?";
+		SqlRowSet sender = jdbcTemplate.queryForRowSet(sqlSender, t.getAmount(), t.getAccountFrom());
+		String sqlReceiver = "UPDATE accounts SET balance = (balance + ?) WHERE account_id = ?";
+		SqlRowSet receiver = jdbcTemplate.queryForRowSet(sqlReceiver, t.getAmount(), t.getAccountTo());
+		
+		}
 		
 		return newTransfer;
 		
@@ -155,6 +163,17 @@ public class JDBCAccountDAO implements AccountDAO {
 		
 		return currentAcc;
 		
+	}
+	
+public BigDecimal getBalanceByAccount(int accountId) {
+		
+		String sql = "SELECT balance FROM accounts WHERE  account_id = ?";
+		
+		SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId);
+		if(results.next()) {
+			
+		}
+		return results.getBigDecimal("balance");
 	}
 	
 	
