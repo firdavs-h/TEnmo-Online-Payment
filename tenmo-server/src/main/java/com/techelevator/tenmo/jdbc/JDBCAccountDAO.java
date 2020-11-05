@@ -43,13 +43,18 @@ public class JDBCAccountDAO implements AccountDAO {
 	}
 
 	@Override
-	public void send(int userId, int receiverId, BigDecimal amount) {
+	public Transfer send(Transfer transfer) {
+		
+		Transfer newTransfer = new Transfer();
+		
+		String sqlGetNextInt = "SELECT nextval ('seq_transfer_id'); ";
+		SqlRowSet result = jdbcTemplate.queryForRowSet(sqlGetNextInt);
+		result.next();
+		int id = result.getInt(1);
 		String sql = "INSERT INTO transfers (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount) " + 
-	                 "VALUES (DEFAULT, 2, 2, ?, ?, ?) " + 
-				    "WHERE account_from = (SELECT account_id FROM accounts WHERE user_id = 1) AND " +
-	                 "account_to = (SELECT account_id FROM accounts WHERE user_id = 3); ";
-		SqlRowSet results  = jdbcTemplate.queryForRowSet(sql, userId, receiverId, amount);
-		results.next();
+	                 "VALUES (?, ?, ?, ?, ?, ?) ";
+		mapRowToTransfer(result);
+		return newTransfer;
 		
 	}
 
@@ -94,7 +99,32 @@ public class JDBCAccountDAO implements AccountDAO {
 		return null;
 	}
 	
+	public List<Account> getAllAccounts() {
+		List<Account> accounts = new ArrayList<>();
+		String sql = "SELECT account_id, user_id, username FROM account; ";
+		SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+		while(results.next()) {
+			Account account = mapRowToAccount(results);
+			accounts.add(account);
+			
+		}
+		return accounts;
+	}
+		
+		
+	private Account mapRowToAccount(SqlRowSet row) {
+		
+		Account account = new Account();
+			account.setAccountId(row.getInt("accountId"));
+			account.setUserId(row.getInt("userId"));
+			account.setUsername(row.getString("userName"));
+		return account;
+		}
 	
+	
+	
+	
+
 	
 	private Transfer mapRowToTransfer(SqlRowSet rs) {
 		Transfer trans = new Transfer();
