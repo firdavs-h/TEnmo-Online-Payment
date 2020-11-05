@@ -29,21 +29,19 @@ public class AccountController {
 	public BigDecimal getBal(@PathVariable int id) {
 		return accountDao.getBalance(id);
 		
-		
 	}
 	
 	@PreAuthorize("isAuthenticated()")
 	@RequestMapping(path = "transfers/{id}", method = RequestMethod.GET)
-	public void pastTransfers(@PathVariable int userId) {
-		System.out.println(accountDao.pastTransfers(userId));
+	public List<Transfer> pastTransfers(@PathVariable int userId) {
+		return accountDao.pastTransfers(userId);
+		
 	}
 	
 	@PreAuthorize("isAuthenticated()")
 	@RequestMapping(path = "transfers/{userId}?transfer_id=")
-	public void pastTransfersById(@PathVariable int userId, @RequestParam int transfer_id) {
-		System.out.println(accountDao.pastTransfers(userId));
-		
-		
+	public List<Transfer> pastTransfersById(@PathVariable int userId, @RequestParam int transfer_id) {
+		return accountDao.pastTransfers(userId);
 		
 	}
 	
@@ -52,17 +50,21 @@ public class AccountController {
 	public List<Account>getAllAccounts() {
 		return accountDao.getAllAccounts();		
 		
-		
 	}
+	
 	//@PreAuthorize("isAuthenticated()")
 	@RequestMapping(path = "send", method = RequestMethod.POST)
 	public Transfer send(@RequestBody Transfer transfer) {
-		return accountDao.send(transfer);
-		
+		return accountDao.send(transfer);	
 		
 	}
 	
-	
+	@PreAuthorize("isAuthenticated()")
+	@RequestMapping(path = "transfers/{userId}/pending", method = RequestMethod.GET)
+	public Transfer[] pendingTransfers(@PathVariable int userId, @RequestParam Transfer transfer) {
+		return accountDao.pendingTransfers(userId);
+		
+	}
 	
 	
 	
