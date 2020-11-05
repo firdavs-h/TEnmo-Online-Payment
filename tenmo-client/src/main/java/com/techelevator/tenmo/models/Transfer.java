@@ -4,43 +4,55 @@ import java.math.BigDecimal;
 
 public class Transfer {
 	
-	private int transferId;
-	private String TransferType;
-	private String TransferStatus;
-	private int accountFrom;
-	private int accountTo;
+	private Integer transfer_id;
+	private Integer transfer_type_id;
+	private Integer transfer_status_id;
+	private Integer account_from;
+	private Integer account_to;
 	private BigDecimal amount;
 	
 	
+	
+	public Transfer(Integer transfer_id, Integer transfer_type_id, Integer transfer_status_id, Integer account_from,
+			Integer account_to, BigDecimal amount) {
+		
+		this.transfer_id = transfer_id;
+		this.transfer_type_id = transfer_type_id;
+		this.transfer_status_id = transfer_status_id;
+		this.account_from = account_from;
+		this.account_to = account_to;
+		this.amount = amount;
+	}
+	
 	public int getTransferId() {
-		return transferId;
+		return transfer_id;
 	}
-	public void setTransferId(int transferId) {
-		this.transferId = transferId;
+	public void setTransferId(Integer transferId) {
+		this.transfer_id = transferId;
 	}
-	public String getTransferType() {
-		return TransferType;
+	public Integer getTransferType() {
+		return transfer_type_id;
 	}
-	public void setTransferType(String transferType) {
-		TransferType = transferType;
+	public void setTransferType(Integer transferType) {
+		transfer_type_id = transferType;
 	}
-	public String getTransferStatus() {
-		return TransferStatus;
+	public Integer getTransferStatus() {
+		return transfer_status_id;
 	}
-	public void setTransferStatus(String transferStatus) {
-		TransferStatus = transferStatus;
+	public void setTransferStatus(Integer transferStatus) {
+		transfer_status_id = transferStatus;
 	}
 	public int getAccountFrom() {
-		return accountFrom;
+		return account_from;
 	}
-	public void setAccountFrom(int accountFrom) {
-		this.accountFrom = accountFrom;
+	public void setAccountFrom(Integer accountFrom) {
+		this.account_from = accountFrom;
 	}
 	public int getAccountTo() {
-		return accountTo;
+		return account_to;
 	}
-	public void setAccountTo(int accountTo) {
-		this.accountTo = accountTo;
+	public void setAccountTo(Integer accountTo) {
+		this.account_to = accountTo;
 	}
 	public BigDecimal getAmount() {
 		return amount;
