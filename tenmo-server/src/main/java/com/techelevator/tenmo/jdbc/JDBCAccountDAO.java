@@ -105,7 +105,7 @@ public class JDBCAccountDAO implements AccountDAO {
 	public List<Transfer> pendingTransfers(Transfer t, int userId) {
 		
 		List<Transfer> transfers = new ArrayList<>();
-		String sql = "UPDATE transfers SET transfer_status_id = 1 WHERE account_to = ?";
+		String sql = "SELECT transfer_status_id = 1 WHERE account_to = ?";
 		
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
 		while(results.next()) {
