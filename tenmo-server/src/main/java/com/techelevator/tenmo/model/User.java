@@ -4,10 +4,16 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.validation.constraints.NotBlank;
+
 public class User {
 
    private Long id;
+   
+   @NotBlank(message = "The field `username` should not be blank.")
    private String username;
+   
+   @NotBlank(message = "The field `password` should not be blank.")
    private String password;
    private boolean activated;
    private Set<Authority> authorities = new HashSet<>();
