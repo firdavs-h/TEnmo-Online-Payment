@@ -30,7 +30,7 @@ public class AccountService {
 		this.currentUser = currentUser;
 	}
 
-	public void viewCurrentBalance() {
+	public BigDecimal viewCurrentBalance() {
 		BigDecimal balance = null;
 		Integer id = currentUser.getUser().getId();
 		try {
@@ -42,7 +42,8 @@ public class AccountService {
 		} catch (ResourceAccessException e) {
 			System.out.println("Server not accessible. Check your connection or try again.");
 		}
-		System.out.println("Your current account balance is: $" + balance);
+		
+		return balance;
 	}
 
 	public void viewTransferHistory() {
@@ -89,13 +90,31 @@ public class AccountService {
 		Transfer transferRet = null;
 		Integer currentUserId = currentUser.getUser().getId();
 		printAccount();
-		Integer receiverUserId = console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)");
-		if (receiverUserId == 0)
-			return;
+		Integer receiverUserId ;
+		Integer accountTo=null;
+		
+		while (accountTo==null) {
+			receiverUserId = console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)");
+			if (receiverUserId == 0)
+				return;
+			accountTo = accountFromId(receiverUserId);
+			if(accountTo==null) System.out.println("Wrong user ID, try again");
+		} 
+		
+		BigDecimal amount;
+		BigDecimal currentBal =viewCurrentBalance();
+		do {
+			amount = console.getUserInputBigDecimal("Enter amount (0 to cancel)");
+			if (amount.compareTo(BigDecimal.valueOf(0))==0)
+				return;
+			if(amount.compareTo(currentBal)>0) {
+				System.out.println("Amount exceeds your current balance: $"+currentBal+", try different amount");
+			}
+		} while (amount.compareTo(currentBal)>0);
 
-		BigDecimal amount = console.getUserInputBigDecimal("Enter amount");
+		
 		Integer accountFrom = accountFromId(currentUserId);
-		Integer accountTo = accountFromId(receiverUserId);
+		
 
 		Transfer transfer = new Transfer();
 		transfer.setTransferType(2);
@@ -114,7 +133,7 @@ public class AccountService {
 			System.out.println("Server not accessible. Check your connection or try again.");
 		}
 		printTransfers(transferRet);
-		viewCurrentBalance();
+		System.out.println("Your current account balance is: $" + viewCurrentBalance());
 		System.out.println("---Transaction successful---");
 
 	}
