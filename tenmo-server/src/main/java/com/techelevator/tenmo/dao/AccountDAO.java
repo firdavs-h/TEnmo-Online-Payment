@@ -12,7 +12,7 @@ public interface AccountDAO {
 	Transfer createRequest(Transfer transfer);
 	List<Transfer> pastTransfers(int userId);
 	Transfer transferById(int userId,int transfer_id);
-	Transfer[] pendingTransfers(int userId);
+	List<Transfer> pendingTransfers(Transfer t, int userId);
 	public List<Account> getAllAccounts(); 
 
 }
