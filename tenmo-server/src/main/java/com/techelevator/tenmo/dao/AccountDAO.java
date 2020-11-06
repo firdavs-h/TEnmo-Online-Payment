@@ -9,10 +9,9 @@ import com.techelevator.tenmo.model.Transfer;
 public interface AccountDAO {
 	
 	BigDecimal getBalance(int userId);
-	Transfer send(Transfer transfer);
+	Transfer createRequest(Transfer transfer);
 	List<Transfer> pastTransfers(int userId);
 	Transfer transferById(int userId,int transfer_id);
-	void request(int senderId, BigDecimal amount);
 	Transfer[] pendingTransfers(int userId);
 	public List<Account> getAllAccounts(); 
 

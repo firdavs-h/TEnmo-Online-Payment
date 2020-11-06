@@ -59,7 +59,7 @@ public class AccountController {
 	@ResponseStatus(HttpStatus.CREATED)
 	@RequestMapping(path = "send", method = RequestMethod.POST)
 	public Transfer send(@RequestBody Transfer transfer) {
-		return accountDao.send(transfer);	
+		return accountDao.createRequest(transfer);	
 		
 	}
 	
