@@ -116,7 +116,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				accountService.setCurrentUser(currentUser);
 			} else if (LOGIN_MENU_OPTION_REGISTER.equals(choice)) {
 				register();
-				accountService.setCurrentUser(currentUser);
 			} else {
 				// the only other option on the login menu is to exit
 				exitProgram();

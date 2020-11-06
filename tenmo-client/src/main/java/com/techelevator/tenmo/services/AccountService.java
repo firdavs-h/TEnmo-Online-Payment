@@ -63,7 +63,7 @@ public class AccountService {
 		if (transferId == 0)
 			return;
 		for (Transfer transfer : transfers) {
-			if(transfer.getTransferId()==transferId)
+			if(transfer.getTransferId().equals(transferId))
 				printTransferDetails(transfer);
 		}
 
@@ -115,7 +115,7 @@ public class AccountService {
 		}
 		printTransfers(transferRet);
 		viewCurrentBalance();
-		System.out.println("---Transaction successful---\n");
+		System.out.println("---Transaction successful---");
 
 	}
 
@@ -137,34 +137,49 @@ public class AccountService {
 	}
 
 	private void printTransfers(Transfer... transfers) {
-
 		if (transfers != null) {
 			System.out.println("-------------------------------------------\n" + "Transfers\n"
 					+ "ID\t\t From/To \t\t Amount\n" + "-------------------------------------------");
 
 			for (Transfer t : transfers) {
+				Integer currentAcc =accountFromId(currentUser.getUser().getId());
 				String name = "";
-				if (t.getTransferType() == 2) {
+				if (t.getAccountFrom().equals(currentAcc)) {
 					name = userNameFromAccount(t.getAccountTo());
 					System.out.println(t.getTransferId() + "\t\t To: " + name + "\t\t $ " + t.getAmount());
-				}
-				if (t.getTransferType() == 1) {
+				}else {
 					name = userNameFromAccount(t.getAccountFrom());
 					System.out.println(t.getTransferId() + "\t\t From: " + name + "\t\t $ " + t.getAmount());
 				}
 			}
 		}
 	}
+	
 	private void printTransferDetails(Transfer tr) {
 		if(tr!=null) {
+			
+			String type="";
+			if(tr.getTransferType().equals(1))
+				type = "Request";
+			if(tr.getTransferType().equals(2))
+				type = "Send";
+			
+			String status="";
+			if(tr.getTransferStatus().equals(1))
+				status ="Pending";
+			if(tr.getTransferStatus().equals(2))
+				status ="Approved";
+			if(tr.getTransferStatus().equals(3))
+				status ="Rejected";
+			
 			System.out.println("--------------------------------------------\n" + 
 					"Transfer Details\n" + 
 					"--------------------------------------------\n"
 					+"Id: "+tr.getTransferId()+ "\n"
 					+"From: "+userNameFromAccount(tr.getAccountFrom())+ "\n"
 					+"To: "+ userNameFromAccount(tr.getAccountTo())+ "\n"
-					+"Type: "+tr.getTransferType()+ "\n"
-					+"Status: "+tr.getTransferStatus()+ "\n" 
+					+"Type: "+type+ "\n"
+					+"Status: "+status+ "\n" 
 					+"Amount: "+tr.getAmount());
 		}
 	}
@@ -204,7 +219,7 @@ public class AccountService {
 		Integer accountNum = null;
 		if (userId != null && accounts != null) {
 			for (Account acc : accounts) {
-				if (acc.getUserId() == userId)
+				if (userId.equals(acc.getUserId()))
 					accountNum = acc.getAccountId();
 			}
 		}
@@ -213,13 +228,15 @@ public class AccountService {
 
 	private String userNameFromAccount(Integer accountNum) {
 		Account[] accounts = getAllAccounts();
-		String name = null;
+		String name = "";
 		if (accountNum != null && accounts != null) {
 			for (Account acc : accounts) {
-				if (acc.getAccountId() == accountNum)
+				if (accountNum.equals(acc.getAccountId()) && currentUser.getUser().getId().equals(acc.getUserId())) {
+					name ="(Me) "+ acc.getUsername();
+				}else
+				if(accountNum.equals(acc.getAccountId())) {
 					name = acc.getUsername();
-				if(acc.getUserId()==currentUser.getUser().getId()) 
-					name = "My Account "+name;
+				}
 			}
 		}
 		return name;
