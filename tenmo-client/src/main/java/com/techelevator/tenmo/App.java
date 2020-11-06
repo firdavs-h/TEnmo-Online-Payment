@@ -72,6 +72,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				requestBucks();
 			} else if(MAIN_MENU_OPTION_LOGIN.equals(choice)) {
 				login();
+				accountService.setCurrentUser(currentUser);
 			} else {
 				// the only other option on the main menu is to exit
 				exitProgram();

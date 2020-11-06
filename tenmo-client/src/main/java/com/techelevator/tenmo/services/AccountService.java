@@ -30,7 +30,7 @@ public class AccountService {
 		this.currentUser = currentUser;
 	}
 
-	public void viewCurrentBalance() {
+	public BigDecimal viewCurrentBalance() {
 		BigDecimal balance = null;
 		Integer id = currentUser.getUser().getId();
 		try {
@@ -43,6 +43,7 @@ public class AccountService {
 			System.out.println("Server not accessible. Check your connection or try again.");
 		}
 		System.out.println("Your current account balance is: $" + balance);
+		return balance;
 	}
 
 	public void viewTransferHistory() {
@@ -92,8 +93,17 @@ public class AccountService {
 		Integer receiverUserId = console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)");
 		if (receiverUserId == 0)
 			return;
+		BigDecimal amount;
+		do {
+			amount = console.getUserInputBigDecimal("Enter amount (0 to cancel)");
+			if (amount.compareTo(BigDecimal.valueOf(0))==0)
+				return;
+			if(amount.compareTo(viewCurrentBalance())>0) {
+				System.out.println("Amount exceeds your current balance, try different amount (0 to cancel)");
+			}
+		} while (amount.compareTo(viewCurrentBalance())>0);
 
-		BigDecimal amount = console.getUserInputBigDecimal("Enter amount");
+		
 		Integer accountFrom = accountFromId(currentUserId);
 		Integer accountTo = accountFromId(receiverUserId);
 
