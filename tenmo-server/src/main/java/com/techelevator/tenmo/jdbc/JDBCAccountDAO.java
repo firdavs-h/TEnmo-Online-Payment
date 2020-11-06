@@ -43,23 +43,21 @@ public class JDBCAccountDAO implements AccountDAO {
 	}
 
 	@Override
-	public Transfer send(Transfer t) {
+	public Transfer createRequest(Transfer t) {
 		
 		String sqlGetNextInt = "SELECT nextval ('seq_transfer_id') ";
 		SqlRowSet nextId = jdbcTemplate.queryForRowSet(sqlGetNextInt);
 		nextId.next();
 		int id = nextId.getInt(1);
+		
+		if(t.getAmount().compareTo(getBalanceByAccount(t.getAccountFrom())) <= 0) {
+			
+			
 		String sql = "INSERT INTO transfers (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount) " + 
 	                 "VALUES (?, ?, ?, ?, ?, ?) ";
 	    jdbcTemplate.update(sql,id, t.getTransferType(), t.getTransferStatus(), t.getAccountFrom(), t.getAccountTo(), t.getAmount());
 		t.setTransferId(id);
-		
-		if(t.getAmount().compareTo(getBalanceByAccount(t.getAccountFrom())) <= 0) {
-			
-		String sqlSender ="UPDATE accounts SET balance = (balance - ?) WHERE account_id = ?";
-		 jdbcTemplate.update(sqlSender, t.getAmount(), t.getAccountFrom());
-		String sqlReceiver = "UPDATE accounts SET balance = (balance + ?) WHERE account_id = ?";
-		jdbcTemplate.update(sqlReceiver, t.getAmount(), t.getAccountTo());
+		changeBalance(t);
 		
 		}
 		
@@ -100,11 +98,7 @@ public class JDBCAccountDAO implements AccountDAO {
 		return transfer;
 	}
 
-	@Override
-	public void request(int senderId, BigDecimal amount) {
-		
-		
-	}
+
 
 	@Override
 	public Transfer[] pendingTransfers(int userId) {
@@ -136,11 +130,7 @@ public class JDBCAccountDAO implements AccountDAO {
 		return account;
 		}
 	
-	
-	
-	
 
-	
 	private Transfer mapRowToTransfer(SqlRowSet rs) {
 		Transfer trans = new Transfer();
 		trans.setTransferId(rs.getInt("transfer_id"));
@@ -152,20 +142,18 @@ public class JDBCAccountDAO implements AccountDAO {
 		return trans;
 	}
 	
-	private Account setAccount(Principal p) {
-		 
-		String currentUser = p.getName();
+	public void changeBalance(Transfer t) {
 		
-		String sql ="SELECT*FROM accounts JOIN users ON users.user_id =accounts.user_id WHERE users.username =?";
-		SqlRowSet temp =jdbcTemplate.queryForRowSet(sql,currentUser);
-		temp.next();
-		currentAcc.setAccountId(temp.getInt("account_id"));
-		currentAcc.setUserId(temp.getInt("user_id"));
-		currentAcc.setBalance(temp.getBigDecimal("balance"));
-		
-		return currentAcc;
+		if(t.getTransferStatus() == 2) {
+		String sqlSender ="UPDATE accounts SET balance = (balance - ?) WHERE account_id = ?";
+		 jdbcTemplate.update(sqlSender, t.getAmount(), t.getAccountFrom());
+		String sqlReceiver = "UPDATE accounts SET balance = (balance + ?) WHERE account_id = ?";
+		jdbcTemplate.update(sqlReceiver, t.getAmount(), t.getAccountTo());
+		}
 		
 	}
+	
+
 	
 public BigDecimal getBalanceByAccount(int accountId) {
 		
