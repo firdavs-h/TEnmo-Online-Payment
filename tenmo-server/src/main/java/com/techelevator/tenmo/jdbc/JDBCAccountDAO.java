@@ -50,7 +50,8 @@ public class JDBCAccountDAO implements AccountDAO {
 		nextId.next();
 		int id = nextId.getInt(1);
 		
-		if(t.getAmount().compareTo(getBalanceByAccount(t.getAccountFrom())) <= 0) {
+		if((t.getAmount().compareTo(getBalanceByAccount(t.getAccountFrom())) <= 0 && t.getTransferStatus().equals(2)) || 
+				t.getTransferStatus().equals(1)) {
 			
 			
 		String sql = "INSERT INTO transfers (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount) " + 
@@ -102,7 +103,7 @@ public class JDBCAccountDAO implements AccountDAO {
 
 	@Override
 	public Transfer[] pendingTransfers(int userId) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 	
