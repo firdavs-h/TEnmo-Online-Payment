@@ -80,22 +80,22 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewCurrentBalance() {
-		accountService.viewCurrentBalance(currentUser);
+		accountService.viewCurrentBalance();
 
 	}
 
 	private void viewTransferHistory() {
-	accountService.viewTransferHistory(currentUser);
+	accountService.viewTransferHistory();
 		
 	}
 
 	private void viewPendingRequests() {
-	accountService.viewPendingRequests(currentUser);
+	accountService.viewPendingRequests();
 		
 	}
 
 	private void sendBucks() {
-		accountService.sendBucks(currentUser);
+		accountService.sendBucks();
 		
 	}
 
@@ -113,8 +113,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			String choice = (String)console.getChoiceFromOptions(LOGIN_MENU_OPTIONS);
 			if (LOGIN_MENU_OPTION_LOGIN.equals(choice)) {
 				login();
+				accountService.setCurrentUser(currentUser);
 			} else if (LOGIN_MENU_OPTION_REGISTER.equals(choice)) {
 				register();
+				accountService.setCurrentUser(currentUser);
 			} else {
 				// the only other option on the login menu is to exit
 				exitProgram();
