@@ -102,9 +102,17 @@ public class JDBCAccountDAO implements AccountDAO {
 
 
 	@Override
-	public Transfer[] pendingTransfers(int userId) {
+	public List<Transfer> pendingTransfers(Transfer t, int userId) {
 		
-		return null;
+		List<Transfer> transfers = new ArrayList<>();
+		String sql = "UPDATE transfers SET transfer_status_id = 1 WHERE account_to = ?";
+		
+		SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+		while(results.next()) {
+			Transfer transfer = mapRowToTransfer(results);
+			transfers.add(transfer);
+		}
+		return transfers;
 	}
 	
 	@Override
