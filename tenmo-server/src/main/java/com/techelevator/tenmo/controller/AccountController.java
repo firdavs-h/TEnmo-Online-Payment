@@ -52,13 +52,13 @@ public class AccountController {
 	}
 	
 	@ResponseStatus(HttpStatus.CREATED)
-	@RequestMapping(path = "send", method = RequestMethod.POST)
-	public Transfer send(@RequestBody Transfer transfer) throws UserNotFoundException {
+	@RequestMapping(path = "create", method = RequestMethod.POST)
+	public Transfer create(@RequestBody Transfer transfer) throws UserNotFoundException {
 		return accountDao.createRequest(transfer);	
 		
 	}
 	
-	@PreAuthorize("isAuthenticated()")
+
 	@RequestMapping(path = "transfers/{userId}/pending", method = RequestMethod.GET)
 	public List<Transfer> pendingTransfers(@PathVariable int userId, @RequestParam Transfer transfer) throws UserNotFoundException {
 		return accountDao.pendingTransfers(transfer, userId);

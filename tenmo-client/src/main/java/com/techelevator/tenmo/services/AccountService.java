@@ -99,7 +99,7 @@ public class AccountService {
 				return;
 			accountTo = accountFromId(receiverUserId);
 			if(accountTo==null) System.out.println("Wrong user ID, try again");
-		} 
+		}  
 		
 		BigDecimal amount;
 		BigDecimal currentBal =viewCurrentBalance();
@@ -124,7 +124,7 @@ public class AccountService {
 		transfer.setAmount(amount);
 		try {
 			transferRet = restTemplate
-					.exchange(BASE_URL + "send", HttpMethod.POST, makeTransferEntity(transfer), Transfer.class)
+					.exchange(BASE_URL + "create", HttpMethod.POST, makeTransferEntity(transfer), Transfer.class)
 					.getBody();
 
 		} catch (RestClientResponseException ex) {
@@ -136,6 +136,45 @@ public class AccountService {
 		System.out.println("Your current account balance is: $" + viewCurrentBalance());
 		System.out.println("---Transaction successful---");
 
+	}
+	public void requestBucks() {
+		Transfer transferRet = null;
+		Integer currentUserId = currentUser.getUser().getId();
+		printAccount();
+		Integer requestFromUserId ;
+		Integer accountFrom=null;
+		
+		while (accountFrom==null) {
+			requestFromUserId = console.getUserInputInteger("Enter ID of user you are requesting from (0 to cancel)");
+			if (requestFromUserId == 0)
+				return;
+			accountFrom = accountFromId(requestFromUserId);
+			if(accountFrom==null) System.out.println("Wrong user ID, try again");
+		}  
+		
+		BigDecimal amount = console.getUserInputBigDecimal("Enter amount (0 to cancel)");
+		Integer accountTo = accountFromId(currentUserId);
+		
+
+		Transfer transfer = new Transfer();
+		transfer.setTransferType(1);
+		transfer.setTransferStatus(1);
+		transfer.setAccountFrom(accountFrom);
+		transfer.setAccountTo(accountTo);
+		transfer.setAmount(amount);
+		try {
+			transferRet = restTemplate
+					.exchange(BASE_URL + "create", HttpMethod.POST, makeTransferEntity(transfer), Transfer.class)
+					.getBody();
+
+		} catch (RestClientResponseException ex) {
+			System.out.println("Request - Responce error: " + ex.getRawStatusCode());
+		} catch (ResourceAccessException e) {
+			System.out.println("Server not accessible. Check your connection or try again.");
+		}
+		printTransfers(transferRet);
+		System.out.println("---Transfer request created---");
+		
 	}
 
 	// helpers
