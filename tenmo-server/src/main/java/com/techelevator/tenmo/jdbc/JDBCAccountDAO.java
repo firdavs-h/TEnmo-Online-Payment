@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import com.techelevator.tenmo.dao.AccountDAO;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.UserNotFoundException;
+
 
 @Component
 public class JDBCAccountDAO implements AccountDAO {
@@ -74,37 +74,6 @@ public class JDBCAccountDAO implements AccountDAO {
 					+ "WHERE a.user_id = ? AND transfer_status_id=?";
 			results = jdbcTemplate.queryForRowSet(sql, userId, status);
 		}
-		while (results.next()) {
-			Transfer transfer = mapRowToTransfer(results);
-			transfers.add(transfer);
-		}
-		return transfers;
-	}
-
-	@Override
-	public Transfer transferById(int userId, int transfer_id) {
-
-		Transfer transfer = null;
-		String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount FROM transfers "
-				+ "JOIN accounts a ON a.account_id = transfers.account_from OR a.account_id = transfers.account_to "
-				+ "WHERE transfer_id=? AND a.user_id = ? ";
-		SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transfer_id, userId);
-
-		if (results.next()) {
-			transfer = mapRowToTransfer(results);
-		} else {
-			throw new UserNotFoundException();
-		}
-		return transfer;
-	}
-
-	@Override
-	public List<Transfer> pendingTransfers(Transfer t, int userId) {
-
-		List<Transfer> transfers = new ArrayList<>();
-		String sql = "SELECT transfer_status_id = 1 WHERE account_to = ?";
-
-		SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
 		while (results.next()) {
 			Transfer transfer = mapRowToTransfer(results);
 			transfers.add(transfer);

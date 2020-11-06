@@ -1,15 +1,11 @@
 package com.techelevator.tenmo.controller;
 
 import java.math.BigDecimal;
-import java.security.Principal;
 import java.util.List;
-
 import javax.validation.Valid;
-
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserNotFoundException;
 import com.techelevator.tenmo.model.Account;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,19 +57,13 @@ public class AccountController {
 		
 	}
 	
-	//@ResponseStatus(HttpStatus.CREATED)
+	@ResponseStatus(HttpStatus.ACCEPTED)
 	@RequestMapping(path = "update", method = RequestMethod.PUT)
 	public Transfer update(@Valid @RequestBody Transfer transfer) throws UserNotFoundException {
 		return accountDao.update(transfer);	
 		
 	}
-	
 
-	@RequestMapping(path = "transfers/{userId}/pending", method = RequestMethod.GET)
-	public List<Transfer> pendingTransfers(@PathVariable int userId, @Valid @RequestParam Transfer transfer) throws UserNotFoundException {
-		return accountDao.pendingTransfers(transfer, userId);
-		
-	}
 	
 	
 	
