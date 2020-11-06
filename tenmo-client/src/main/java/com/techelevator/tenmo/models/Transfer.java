@@ -5,7 +5,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 
 import java.math.BigDecimal;
-@Valid
+
 public class Transfer {
 	
 	private Integer transferId;
@@ -13,7 +13,6 @@ public class Transfer {
 	private Integer transferStatus;
 	private Integer accountFrom;
 	private Integer accountTo;
-	@Positive
 	private BigDecimal amount;
 	
 	

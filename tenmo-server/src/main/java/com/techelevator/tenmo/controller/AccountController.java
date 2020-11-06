@@ -41,8 +41,8 @@ public class AccountController {
 	 
 
 	@RequestMapping(path = "transfers/{userId}", method = RequestMethod.GET)
-	public List<Transfer> pastTransfers(@PathVariable int userId) {
-		return accountDao.pastTransfers(userId);
+	public List<Transfer> pastTransfers(@PathVariable int userId, @RequestParam(required = false) Integer status) {
+		return accountDao.pastTransfers(userId, status);
 		
 	}
 	
@@ -56,8 +56,15 @@ public class AccountController {
 	
 	@ResponseStatus(HttpStatus.CREATED)
 	@RequestMapping(path = "create", method = RequestMethod.POST)
-	public Transfer create(@RequestBody Transfer transfer) throws UserNotFoundException {
+	public Transfer create(@Valid @RequestBody Transfer transfer) throws UserNotFoundException {
 		return accountDao.createRequest(transfer);	
+		
+	}
+	
+	//@ResponseStatus(HttpStatus.CREATED)
+	@RequestMapping(path = "update", method = RequestMethod.PUT)
+	public Transfer update(@Valid @RequestBody Transfer transfer) throws UserNotFoundException {
+		return accountDao.update(transfer);	
 		
 	}
 	

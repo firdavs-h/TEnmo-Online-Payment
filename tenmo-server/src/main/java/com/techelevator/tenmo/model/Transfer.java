@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
 
 public class Transfer {
 	
@@ -24,7 +25,7 @@ public class Transfer {
 	@Min(value = 1, message = "The field `account_to` min is 1")
 	private Integer accountTo;
 	
-	@DecimalMin(value = "0.01", message = "The field `amount` should be greater than 0.")
+	@Positive(message = "The field `amount` should be greater than 0.")
 	private BigDecimal amount;
 	
 	
