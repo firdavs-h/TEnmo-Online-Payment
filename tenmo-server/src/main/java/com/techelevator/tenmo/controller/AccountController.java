@@ -1,15 +1,11 @@
 package com.techelevator.tenmo.controller;
 
 import java.math.BigDecimal;
-import java.security.Principal;
 import java.util.List;
-
 import javax.validation.Valid;
-
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserNotFoundException;
 import com.techelevator.tenmo.model.Account;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,11 +34,11 @@ public class AccountController {
 		return accountDao.getBalance(id);
 		
 	}
-	
+	 
 
 	@RequestMapping(path = "transfers/{userId}", method = RequestMethod.GET)
-	public List<Transfer> pastTransfers(@PathVariable int userId) {
-		return accountDao.pastTransfers(userId);
+	public List<Transfer> pastTransfers(@PathVariable int userId, @RequestParam(required = false) Integer status) {
+		return accountDao.pastTransfers(userId, status);
 		
 	}
 	
@@ -55,18 +51,19 @@ public class AccountController {
 	}
 	
 	@ResponseStatus(HttpStatus.CREATED)
-	@RequestMapping(path = "send", method = RequestMethod.POST)
-	public Transfer send(@Valid @RequestBody Transfer transfer) throws UserNotFoundException {
+	@RequestMapping(path = "create", method = RequestMethod.POST)
+	public Transfer create(@Valid @RequestBody Transfer transfer) throws UserNotFoundException {
 		return accountDao.createRequest(transfer);	
 		
 	}
 	
-	@PreAuthorize("isAuthenticated()")
-	@RequestMapping(path = "transfers/{userId}/pending", method = RequestMethod.GET)
-	public List<Transfer> pendingTransfers(@PathVariable int userId, @Valid @RequestParam Transfer transfer) throws UserNotFoundException {
-		return accountDao.pendingTransfers(transfer, userId);
+	@ResponseStatus(HttpStatus.ACCEPTED)
+	@RequestMapping(path = "update", method = RequestMethod.PUT)
+	public Transfer update(@Valid @RequestBody Transfer transfer) throws UserNotFoundException {
+		return accountDao.update(transfer);	
 		
 	}
+
 	
 	
 	

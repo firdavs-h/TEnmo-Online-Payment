@@ -10,9 +10,8 @@ public interface AccountDAO {
 	
 	BigDecimal getBalance(int userId);
 	Transfer createRequest(Transfer transfer);
-	List<Transfer> pastTransfers(int userId);
-	Transfer transferById(int userId,int transfer_id);
-	List<Transfer> pendingTransfers(Transfer t, int userId);
+	List<Transfer> pastTransfers(int userId, Integer status);
 	public List<Account> getAllAccounts(); 
+	Transfer update(Transfer transfer);
 
 }

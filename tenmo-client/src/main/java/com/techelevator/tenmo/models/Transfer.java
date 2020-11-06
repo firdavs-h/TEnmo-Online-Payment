@@ -1,5 +1,9 @@
 package com.techelevator.tenmo.models;
 
+import javax.validation.Valid; 
+
+import javax.validation.constraints.Positive;
+
 import java.math.BigDecimal;
 
 public class Transfer {

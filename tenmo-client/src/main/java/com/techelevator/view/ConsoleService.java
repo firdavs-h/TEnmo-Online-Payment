@@ -82,10 +82,15 @@ public class ConsoleService {
 			String userInput = in.nextLine();
 			try {
 				result = new BigDecimal(userInput);
+				if (result.compareTo(BigDecimal.valueOf(0.009))==-1) {
+					out.print("Negative or less than $0.01 value inserted, try again\n");
+				}
+				if (result.compareTo(BigDecimal.valueOf(0))==0)
+					return BigDecimal.valueOf(0);
 			} catch(NumberFormatException e) {
-				out.println("\n*** " + userInput + " is not valid ***\n");
+				out.println("\n*** " + userInput + " is not valid***\n");
 			}
-		} while(result == null);
+		} while(result == null||result.compareTo(BigDecimal.valueOf(0.009))==-1 );
 		return result;
 	}
 }

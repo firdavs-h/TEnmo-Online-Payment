@@ -42,7 +42,7 @@ public class AccountService {
 		} catch (ResourceAccessException e) {
 			System.out.println("Server not accessible. Check your connection or try again.");
 		}
-		
+
 		return balance;
 	}
 
@@ -60,11 +60,11 @@ public class AccountService {
 			System.out.println("Server not accessible. Check your connection or try again.");
 		}
 		printTransfers(transfers);
-		Integer transferId =console.getUserInputInteger("Please enter transfer ID to view details (0 to cancel)");
+		Integer transferId = console.getUserInputInteger("Please enter transfer ID to view details (0 to cancel)");
 		if (transferId == 0)
 			return;
 		for (Transfer transfer : transfers) {
-			if(transfer.getTransferId().equals(transferId))
+			if (transfer.getTransferId().equals(transferId))
 				printTransferDetails(transfer);
 		}
 
@@ -74,7 +74,7 @@ public class AccountService {
 		Transfer[] transfers = null;
 		Integer id = currentUser.getUser().getId();
 		try {
-			transfers = restTemplate.exchange(BASE_URL + "transfers/" + id + "/pending", HttpMethod.GET,
+			transfers = restTemplate.exchange(BASE_URL + "transfers/" + id + "?status=1", HttpMethod.GET,
 					makeAuthEntity(), Transfer[].class).getBody();
 
 		} catch (RestClientResponseException ex) {
@@ -83,38 +83,45 @@ public class AccountService {
 			System.out.println("Server not accessible. Check your connection or try again.");
 		}
 		printTransfers(transfers);
-		
+		Integer transferId = console.getUserInputInteger("Please enter transfer ID to approve/reject (0 to cancel)");
+		if (transferId == 0)
+			return;
+		for (Transfer transfer : transfers) {
+			if (transfer.getTransferId().equals(transferId))
+				update(transfer);
+		}
+
 	}
 
 	public void sendBucks() {
 		Transfer transferRet = null;
 		Integer currentUserId = currentUser.getUser().getId();
 		printAccount();
-		Integer receiverUserId ;
-		Integer accountTo=null;
-		
-		while (accountTo==null) {
+		Integer receiverUserId;
+		Integer accountTo = null;
+
+		while (accountTo == null) {
 			receiverUserId = console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)");
 			if (receiverUserId == 0)
 				return;
 			accountTo = accountFromId(receiverUserId);
-			if(accountTo==null) System.out.println("Wrong user ID, try again");
-		} 
-		
+			if (accountTo == null)
+				System.out.println("Wrong user ID, try again");
+		}
+
 		BigDecimal amount;
-		BigDecimal currentBal =viewCurrentBalance();
+		BigDecimal currentBal = viewCurrentBalance();
 		do {
 			amount = console.getUserInputBigDecimal("Enter amount (0 to cancel)");
-			if (amount.compareTo(BigDecimal.valueOf(0))==0)
+			if (amount.compareTo(BigDecimal.valueOf(0)) == 0)
 				return;
-			if(amount.compareTo(currentBal)>0) {
-				System.out.println("Amount exceeds your current balance: $"+currentBal+", try different amount");
-			}
-		} while (amount.compareTo(currentBal)>0);
 
-		
+			if (amount.compareTo(currentBal) > 0) {
+				System.out.println("Amount exceeds your current balance: $" + currentBal + ", try different amount");
+			}
+		} while (amount.compareTo(currentBal) > 0);
+
 		Integer accountFrom = accountFromId(currentUserId);
-		
 
 		Transfer transfer = new Transfer();
 		transfer.setTransferType(2);
@@ -124,7 +131,7 @@ public class AccountService {
 		transfer.setAmount(amount);
 		try {
 			transferRet = restTemplate
-					.exchange(BASE_URL + "send", HttpMethod.POST, makeTransferEntity(transfer), Transfer.class)
+					.exchange(BASE_URL + "create", HttpMethod.POST, makeTransferEntity(transfer), Transfer.class)
 					.getBody();
 
 		} catch (RestClientResponseException ex) {
@@ -135,6 +142,48 @@ public class AccountService {
 		printTransfers(transferRet);
 		System.out.println("Your current account balance is: $" + viewCurrentBalance());
 		System.out.println("---Transaction successful---");
+
+	}
+
+	public void requestBucks() {
+		Transfer transferRet = null;
+		Integer currentUserId = currentUser.getUser().getId();
+		printAccount();
+		Integer requestFromUserId;
+		Integer accountFrom = null;
+
+		while (accountFrom == null) {
+			requestFromUserId = console.getUserInputInteger("Enter ID of user you are requesting from (0 to cancel)");
+			if (requestFromUserId == 0)
+				return;
+			accountFrom = accountFromId(requestFromUserId);
+			if (accountFrom == null)
+				System.out.println("Wrong user ID, try again");
+		}
+
+		BigDecimal amount = console.getUserInputBigDecimal("Enter amount (0 to cancel)");
+		if (amount.compareTo(BigDecimal.valueOf(0)) == 0)
+			return;
+		Integer accountTo = accountFromId(currentUserId);
+
+		Transfer transfer = new Transfer();
+		transfer.setTransferType(1);
+		transfer.setTransferStatus(1);
+		transfer.setAccountFrom(accountFrom);
+		transfer.setAccountTo(accountTo);
+		transfer.setAmount(amount);
+		try {
+			transferRet = restTemplate
+					.exchange(BASE_URL + "create", HttpMethod.POST, makeTransferEntity(transfer), Transfer.class)
+					.getBody();
+
+		} catch (RestClientResponseException ex) {
+			System.out.println("Request - Responce error: " + ex.getRawStatusCode());
+		} catch (ResourceAccessException e) {
+			System.out.println("Server not accessible. Check your connection or try again.");
+		}
+		printTransfers(transferRet);
+		System.out.println("---Transfer request created---");
 
 	}
 
@@ -161,45 +210,40 @@ public class AccountService {
 					+ "ID\t\t From/To \t\t Amount\n" + "-------------------------------------------");
 
 			for (Transfer t : transfers) {
-				Integer currentAcc =accountFromId(currentUser.getUser().getId());
+				Integer currentAcc = accountFromId(currentUser.getUser().getId());
 				String name = "";
 				if (t.getAccountFrom().equals(currentAcc)) {
 					name = userNameFromAccount(t.getAccountTo());
-					System.out.println(t.getTransferId() + "\t\t To: " + name + "\t\t $ " + t.getAmount());
-				}else {
+					System.out.println(t.getTransferId() + "\t\t To: " + name + "\t\t\t $ " + t.getAmount());
+				} else {
 					name = userNameFromAccount(t.getAccountFrom());
 					System.out.println(t.getTransferId() + "\t\t From: " + name + "\t\t $ " + t.getAmount());
 				}
 			}
 		}
 	}
-	
+
 	private void printTransferDetails(Transfer tr) {
-		if(tr!=null) {
-			
-			String type="";
-			if(tr.getTransferType().equals(1))
+		if (tr != null) {
+
+			String type = "";
+			if (tr.getTransferType().equals(1))
 				type = "Request";
-			if(tr.getTransferType().equals(2))
+			if (tr.getTransferType().equals(2))
 				type = "Send";
-			
-			String status="";
-			if(tr.getTransferStatus().equals(1))
-				status ="Pending";
-			if(tr.getTransferStatus().equals(2))
-				status ="Approved";
-			if(tr.getTransferStatus().equals(3))
-				status ="Rejected";
-			
-			System.out.println("--------------------------------------------\n" + 
-					"Transfer Details\n" + 
-					"--------------------------------------------\n"
-					+"Id: "+tr.getTransferId()+ "\n"
-					+"From: "+userNameFromAccount(tr.getAccountFrom())+ "\n"
-					+"To: "+ userNameFromAccount(tr.getAccountTo())+ "\n"
-					+"Type: "+type+ "\n"
-					+"Status: "+status+ "\n" 
-					+"Amount: "+tr.getAmount());
+
+			String status = "";
+			if (tr.getTransferStatus().equals(1))
+				status = "Pending";
+			if (tr.getTransferStatus().equals(2))
+				status = "Approved";
+			if (tr.getTransferStatus().equals(3))
+				status = "Rejected";
+
+			System.out.println("--------------------------------------------\n" + "Transfer Details\n"
+					+ "--------------------------------------------\n" + "Id: " + tr.getTransferId() + "\n" + "From: "
+					+ userNameFromAccount(tr.getAccountFrom()) + "\n" + "To: " + userNameFromAccount(tr.getAccountTo())
+					+ "\n" + "Type: " + type + "\n" + "Status: " + status + "\n" + "Amount: " + tr.getAmount());
 		}
 	}
 
@@ -211,7 +255,7 @@ public class AccountService {
 			for (Account a : accounts) {
 				if (a.getUserId() == currentUser.getUser().getId())
 					continue;
-				System.out.println(a.getUserId() + "\t " + a.getUsername() );
+				System.out.println(a.getUserId() + "\t " + a.getUsername());
 			}
 			System.out.println("-----------");
 		}
@@ -251,14 +295,62 @@ public class AccountService {
 		if (accountNum != null && accounts != null) {
 			for (Account acc : accounts) {
 				if (accountNum.equals(acc.getAccountId()) && currentUser.getUser().getId().equals(acc.getUserId())) {
-					name ="(Me) "+ acc.getUsername();
-				}else
-				if(accountNum.equals(acc.getAccountId())) {
+					name = "(Me) " + acc.getUsername();
+				} else if (accountNum.equals(acc.getAccountId())) {
 					name = acc.getUsername();
 				}
 			}
 		}
 		return name;
+	}
+
+	public void update(Transfer transfer) {
+		Transfer t = transfer;
+		System.out.println("1: Approve\n" + "2: Reject\n" + "0: Don't approve or reject\n" + "---------\nPlease choose 1, 2 or 0");
+		Integer status = null;
+		boolean validEntry = false;
+		while (!validEntry) {
+			status = console.getUserInputInteger("Please choose an option");
+			if ((status.equals(1) || status.equals(2)) || status.equals(0))
+				validEntry = true;
+		}
+
+		if (status.equals(0))
+			return;
+		if (t.getAccountTo().equals(accountFromId(currentUser.getUser().getId()))) {
+			System.out.println("Not authorized to approve you own request");
+			return;
+
+		}
+		if (status.equals(1) || status.equals(2)) {
+			Integer inserStatus = 0;
+
+			if (status.equals(1)) {
+				inserStatus = 2;
+				BigDecimal currentBal = viewCurrentBalance();
+				if (t.getAmount().compareTo(currentBal) > 0) {
+					System.out.println(
+							"Request amount exceeds your current balance: $" + currentBal + " , Approval canceled");
+					return;
+				}
+			}
+			if (status.equals(2))
+				inserStatus = 3;
+
+			t.setTransferStatus(inserStatus);
+			try {
+				restTemplate.exchange(BASE_URL + "update", HttpMethod.PUT, makeTransferEntity(transfer), Transfer.class)
+						.getBody();
+
+			} catch (RestClientResponseException ex) {
+				System.out.println("Request - Responce error: " + ex.getRawStatusCode());
+			} catch (ResourceAccessException e) {
+				System.out.println("Server not accessible. Check your connection or try again.");
+			}
+
+		}
+		System.out.println("---Transfer Status updated---\n"+viewCurrentBalance());
+		
 	}
 
 }
